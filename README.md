@@ -49,7 +49,7 @@ VariableColumnList supports all the FlatList props except couple of them.
   - legacyImplementation
 
 ### Added new props
-  - **columnLayout** (array): Property to define desired column layout. Can be any any length array of intigers. If the specified array is shorter than the supplied number of data component will continue rendering items from the beggining. Defaults to `[1]`
+  - **columnLayout** (array): Property to define desired column layout. Can be any length array of intigers. If the specified array is shorter than the supplied number of data component will continue rendering items from the beggining. Defaults to `[1]`
   - **renderItem** (function): Difference from FlatList component that it accepts one argument which is an object contains `{item, itemIndex, rowIndex, columnIndex}`
     - **item**: item to render
     - **rowIndex**: index of the row containing this item
