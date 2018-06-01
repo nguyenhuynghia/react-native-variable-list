@@ -1,6 +1,6 @@
 {
   "name": "react-native-variable-list",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "React Native component for rendering different number of columns for each row.",
   "main": "index.js",
   "scripts": {
@@ -12,13 +12,18 @@
     "react-native-component",
     "flatlist",
     "grid",
-    "multi-column"
+    "multi-column",
+    "ios",
+    "android"
   ],
   "homepage": "https://github.com/bennygenel/react-native-variable-list",
   "bugs": {
     "url": "https://github.com/bennygenel/react-native-variable-list/issues"
   },
-  "repository": "git@github.com:bennygenel/react-native-variable-list.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bennygenel/react-native-variable-list.git"
+  },
   "author": "Benny Genel <bennygenel@gmail.com>",
   "license": "MIT",
   "private": false,
