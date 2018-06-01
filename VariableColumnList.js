@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, VirtualizedList, StyleSheet, MetroListView, } from 'react-native';
+import { View, VirtualizedList, StyleSheet, } from 'react-native';
 const invariant = require('fbjs/lib/invariant');
 
 const defaultProps = {
@@ -63,7 +63,7 @@ class VariableColumnList extends React.PureComponent {
     }
   }
 
-  constructor(props: Props<ItemT>) {
+  constructor(props) {
     super(props);
     this._checkProps(this.props);
     this._layoutTotalCap = this.props.columnLayout.reduce((a, c) => a + c);
@@ -87,11 +87,6 @@ class VariableColumnList extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    invariant(
-      prevProps.numColumns === this.props.numColumns,
-      'Changing numColumns on the fly is not supported. Change the key prop on FlatList when ' +
-        'changing the number of columns to force a fresh render of the component.'
-    );
     invariant(
       prevProps.onViewableItemsChanged === this.props.onViewableItemsChanged,
       'Changing onViewableItemsChanged on the fly is not supported'
@@ -131,28 +126,27 @@ class VariableColumnList extends React.PureComponent {
     } = props;
     invariant(
       !getItem && !getItemCount,
-      'FlatList does not support custom data formats.'
+      'VariableColumnList does not support custom data formats.'
     );
-    if (numColumns > 1) {
-      invariant(!horizontal, 'numColumns does not support horizontal.');
-    } else {
-      invariant(
-        !columnWrapperStyle,
-        'columnWrapperStyle not supported for single column lists'
-      );
-    }
     invariant(
-      Array.isArray(columnLayout),
-      'columnLayout should be an Array',
-      numColumns
+      !Array.isArray(columnLayout),
+      'columnLayout should be an Array'
     );
-    // invariant(
-    //   legacyImplementation,
-    //   'VariableColumnList does not support legacy list'
-    // );
+    invariant(
+      !legacyImplementation,
+      'VariableColumnList does not support legacy list'
+    );
+    invariant(
+      !horizontal,
+      'VariableColumnList does not support horizontal list'
+    );
+    invariant(
+      !numColumns,
+      'VariableColumnList does not support numColumns. Use columnLayout prop instead.'
+    );
     invariant(
       !(onViewableItemsChanged && viewabilityConfigCallbackPairs),
-      'FlatList does not support setting both onViewableItemsChanged and ' +
+      'VariableColumnList does not support setting both onViewableItemsChanged and ' +
         'viewabilityConfigCallbackPairs.'
     );
   }
@@ -214,16 +208,8 @@ class VariableColumnList extends React.PureComponent {
     });
   }
 
-  _createOnViewableItemsChanged(
-    onViewableItemsChanged: ?(info: {
-      viewableItems: Array<ViewToken>,
-      changed: Array<ViewToken>,
-    }) => void
-  ) {
-    return (info: {
-      viewableItems: Array<ViewToken>,
-      changed: Array<ViewToken>,
-    }) => {
+  _createOnViewableItemsChanged(onViewableItemsChanged) {
+    return (info) => {
       const { columnLayout, } = this.props;
       if (onViewableItemsChanged) {
         if (columnLayout) {
@@ -261,7 +247,7 @@ class VariableColumnList extends React.PureComponent {
       const itemsCount = columnLayout[index % columnLayout.length];
       invariant(
         Array.isArray(item),
-        'Expected array of items with numColumns > 1'
+        'Expected array of items'
       );
       return (
         <View style={StyleSheet.compose(styles.row, columnWrapperStyle)}>
