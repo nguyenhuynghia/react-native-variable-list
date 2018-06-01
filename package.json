@@ -1,0 +1,32 @@
+{
+  "name": "react-native-variable-list",
+  "version": "0.1.0",
+  "description": "React Native component for rendering different number of columns for each row.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint -c .eslintrc . --ignore-path .gitignore",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react-native",
+    "react-native-component",
+    "flatlist",
+    "grid",
+    "multi-column"
+  ],
+  "homepage": "https://github.com/bennygenel/react-native-variable-list",
+  "bugs": {
+    "url": "https://github.com/bennygenel/react-native-variable-list/issues"
+  },
+  "repository": "git@github.com:bennygenel/react-native-variable-list.git",
+  "author": "Benny Genel <bennygenel@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "prop-types": "^15.6.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.3",
+    "eslint": "^4.19.1"
+  }
+}
