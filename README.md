@@ -41,7 +41,7 @@ export default class extends Component {
 
 ## **Props**
 
-VariableColumnList supports all the FlatList props except couple of them.
+VariableColumnList supports all the `FlatList` props except couple of them.
 
 ### Not supported props:
   - numColumns
@@ -50,7 +50,7 @@ VariableColumnList supports all the FlatList props except couple of them.
 
 ### Added new props
   - **columnLayout** (array): Property to define desired column layout. Can be any length array of intigers. If the specified array is shorter than the supplied number of data component will continue rendering items from the beggining. Defaults to `[1]`
-  - **renderItem** (function): Difference from FlatList component that it accepts one argument which is an object contains `{item, itemIndex, rowIndex, columnIndex}`
-    - **item**: item to render
+  - **renderItem** (function): Difference from `FlatList` component that info argument has below props extra.
+    - **itemIndex**: index of the item.
     - **rowIndex**: index of the row containing this item
     - **columnIndex**: index of the item in that column
