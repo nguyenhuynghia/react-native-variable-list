@@ -15,4 +15,4 @@ OR
 
 **Sample**
 
-![Sample](https://i.imgur.com/C5jtmoU.png)
+![Sample](./sample/screenshot.png)
