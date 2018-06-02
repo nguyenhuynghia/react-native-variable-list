@@ -1,33 +1,100 @@
-import React from 'react';
-import { View, VirtualizedList, StyleSheet, } from 'react-native';
+const React = require('React');
+import { View, VirtualizedList, StyleSheet } from 'react-native';
 const invariant = require('fbjs/lib/invariant');
 
-const defaultProps = {
-  ...VirtualizedList.defaultProps,
-  columnLayout: [1, ],
+import type { DangerouslyImpreciseStyleProp } from 'StyleSheet';
+import type {
+  ViewabilityConfig,
+  ViewToken,
+  ViewabilityConfigCallbackPair,
+} from 'ViewabilityHelper';
+import type { Props as VirtualizedListProps } from 'VirtualizedList';
+
+export type SeparatorsObj = {
+  highlight: () => void,
+  unhighlight: () => void,
+  updateProps: (select: 'leading' | 'trailing', newProps: Object) => void,
 };
 
-class VariableColumnList extends React.PureComponent {
-  static defaultProps = defaultProps;
-  scrollToEnd(params) {
+type RequiredProps<ItemT> = {
+  renderItem: (info: {
+    item: ItemT,
+    itemIndex: number,
+    rowIndex: number,
+    columnIndex: number,
+    separators: SeparatorsObj,
+  }) => ?React.Element<any>,
+  data: ?$ReadOnlyArray<ItemT>,
+  columnLayout: $ReadOnlyArray<number>
+};
+
+type OptionalProps<ItemT> = {
+  ItemSeparatorComponent?: ?React.ComponentType<any>,
+  ListEmptyComponent?: ?(React.ComponentType<any> | React.Element<any>),
+  ListFooterComponent?: ?(React.ComponentType<any> | React.Element<any>),
+  ListHeaderComponent?: ?(React.ComponentType<any> | React.Element<any>),
+  columnWrapperStyle?: DangerouslyImpreciseStyleProp,
+  extraData?: any,
+  getItemLayout?: (
+    data: ?Array<ItemT>,
+    index: number,
+  ) => {length: number, offset: number, index: number},
+  initialNumToRender: number,
+  initialScrollIndex?: ?number,
+  inverted?: ?boolean,
+  keyExtractor: (item: ItemT, index: number) => string,
+  onEndReached?: ?(info: {distanceFromEnd: number}) => void,
+  onEndReachedThreshold?: ?number,
+  onRefresh?: ?() => void,
+  onViewableItemsChanged?: ?(info: {
+    viewableItems: Array<ViewToken>,
+    changed: Array<ViewToken>,
+  }) => void,
+  progressViewOffset?: number,
+  refreshing?: ?boolean,
+  removeClippedSubviews?: boolean,
+  viewabilityConfig?: ViewabilityConfig,
+  viewabilityConfigCallbackPairs?: Array<ViewabilityConfigCallbackPair>,
+};
+export type Props<ItemT> = RequiredProps<ItemT> &
+  OptionalProps<ItemT> &
+  VirtualizedListProps;
+const defaultProps = {
+  ...VirtualizedList.defaultProps,
+};
+export type DefaultProps = typeof defaultProps;
+
+class VariableColumnList<ItemT> extends React.PureComponent<Props<ItemT>, void> {
+  static defaultProps: DefaultProps = defaultProps;
+  props: Props<ItemT>;
+  scrollToEnd(params?: ?{animated?: ?boolean}) {
     if (this._listRef) {
       this._listRef.scrollToEnd(params);
     }
   }
 
-  scrollToIndex(params) {
+  scrollToIndex(params: {
+    animated?: ?boolean,
+    index: number,
+    viewOffset?: number,
+    viewPosition?: number,
+  }) {
     if (this._listRef) {
       this._listRef.scrollToIndex(params);
     }
   }
 
-  scrollToItem(params) {
+  scrollToItem(params: {
+    animated?: ?boolean,
+    item: ItemT,
+    viewPosition?: number,
+  }) {
     if (this._listRef) {
       this._listRef.scrollToItem(params);
     }
   }
 
-  scrollToOffset(params) {
+  scrollToOffset(params: {animated?: ?boolean, offset: number}) {
     if (this._listRef) {
       this._listRef.scrollToOffset(params);
     }
@@ -57,13 +124,13 @@ class VariableColumnList extends React.PureComponent {
     }
   }
 
-  setNativeProps(props) {
+  setNativeProps(props: {[string]: mixed}) {
     if (this._listRef) {
       this._listRef.setNativeProps(props);
     }
   }
 
-  constructor(props) {
+  constructor(props: Props<ItemT>) {
     super(props);
     this._checkProps(this.props);
     this._layoutTotalCap = this.props.columnLayout.reduce((a, c) => a + c);
@@ -86,7 +153,7 @@ class VariableColumnList extends React.PureComponent {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: Props<ItemT>) {
     invariant(
       prevProps.onViewableItemsChanged === this.props.onViewableItemsChanged,
       'Changing onViewableItemsChanged on the fly is not supported'
@@ -105,14 +172,14 @@ class VariableColumnList extends React.PureComponent {
   }
 
   _hasWarnedLegacy = false;
-  _listRef;
-  _virtualizedListPairs = [];
+  _listRef: null | VirtualizedList;
+  _virtualizedListPairs: Array<ViewabilityConfigCallbackPair> = [];
   _layoutTotalCap = 0;
-  _captureRef = ref => {
+  _captureRef = (ref: VirtualizedList) => {
     this._listRef = ref;
   };
 
-  _checkProps(props) {
+  _checkProps(props: Props<ItemT>) {
     const {
       getItem,
       getItemCount,
@@ -151,8 +218,8 @@ class VariableColumnList extends React.PureComponent {
     );
   }
 
-  _getItem = (data, index) => {
-    const { columnLayout, } = this.props;
+  _getItem = (data: Array<ItemT>, index: number) => {
+    const { columnLayout } = this.props;
     if (columnLayout) {
       const ret = [];
       const cLength = columnLayout.length;
@@ -169,8 +236,8 @@ class VariableColumnList extends React.PureComponent {
     }
   };
 
-  _getItemCount = data => {
-    const { columnLayout, } = this.props;
+  _getItemCount = (data: ?Array<ItemT>): number => {
+    const { columnLayout } = this.props;
     if (data && columnLayout) {
       let _l = data.length;
       let row = 0;
@@ -187,30 +254,41 @@ class VariableColumnList extends React.PureComponent {
     } else return 0;
   };
 
-  _keyExtractor = (items, index) => {
-    const { keyExtractor, columnLayout, } = this.props;
+  _keyExtractor = (items: ItemT | Array<ItemT>, index: number) => {
+    const { keyExtractor, columnLayout } = this.props;
     if (columnLayout) {
       const itemsCount = columnLayout[index % columnLayout.length];
       return items
         .map((it, kk) => keyExtractor(it, this._getItemsIndex(index, kk)))
         .join(':');
     } else {
+      /* $FlowFixMe(>=0.63.0 site=react_native_fb) This comment suppresses an
+     * error found when Flow v0.63 was deployed. To see the error delete this
+     * comment and run Flow. */
       return keyExtractor(items, index);
     }
   };
 
-  _pushMultiColumnViewable(arr, v) {
-    const { numColumns, keyExtractor, } = this.props;
+  _pushMultiColumnViewable(arr: Array<ViewToken>, v: ViewToken): void {
+    const { numColumns, keyExtractor } = this.props;
     v.item.forEach((item, ii) => {
       invariant(v.index != null, 'Missing index!');
       const index = this._getItemsIndex(v.index, ii);
-      arr.push({ ...v, item, key: keyExtractor(item, index), index, });
+      arr.push({ ...v, item, key: keyExtractor(item, index), index });
     });
   }
 
-  _createOnViewableItemsChanged(onViewableItemsChanged) {
-    return (info) => {
-      const { columnLayout, } = this.props;
+  _createOnViewableItemsChanged(
+    onViewableItemsChanged: ?(info: {
+      viewableItems: Array<ViewToken>,
+      changed: Array<ViewToken>,
+    }) => void,
+  ) {
+    return (info: {
+      viewableItems: Array<ViewToken>,
+      changed: Array<ViewToken>,
+    }) => {
+      const { columnLayout } = this.props;
       if (onViewableItemsChanged) {
         if (columnLayout) {
           const changed = [];
@@ -219,7 +297,7 @@ class VariableColumnList extends React.PureComponent {
             this._pushMultiColumnViewable(viewableItems, v)
           );
           info.changed.forEach(v => this._pushMultiColumnViewable(changed, v));
-          onViewableItemsChanged({ viewableItems, changed, });
+          onViewableItemsChanged({ viewableItems, changed });
         } else {
           onViewableItemsChanged(info);
         }
@@ -227,8 +305,8 @@ class VariableColumnList extends React.PureComponent {
     };
   }
 
-  _getItemsIndex = (index, kk) => {
-    const { columnLayout, } = this.props;
+  _getItemsIndex = (index: number, kk: number) => {
+    const { columnLayout } = this.props;
     const cLength = columnLayout.length;
     const currentTimes = Math.floor(index / cLength);
     let itemsCount = columnLayout[index % cLength];
@@ -240,10 +318,10 @@ class VariableColumnList extends React.PureComponent {
     return this._layoutTotalCap * currentTimes + tillTotal + kk;
   };
 
-  _renderItem = info => {
-    const { renderItem, columnLayout, columnWrapperStyle, } = this.props;
+  _renderItem = (info: Object) => {
+    const { renderItem, columnLayout, columnWrapperStyle } = this.props;
     if (columnLayout) {
-      const { item, index, } = info;
+      const { item, index } = info;
       const itemsCount = columnLayout[index % columnLayout.length];
       invariant(
         Array.isArray(item),
@@ -259,7 +337,7 @@ class VariableColumnList extends React.PureComponent {
               columnIndex: kk,
               separators: info.separators,
             });
-            return element && React.cloneElement(element, { key: kk, });
+            return element && React.cloneElement(element, { key: kk });
           })}
         </View>
       );
@@ -284,7 +362,7 @@ class VariableColumnList extends React.PureComponent {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', },
+  row: { flexDirection: 'row' },
 });
 
 export default VariableColumnList;
