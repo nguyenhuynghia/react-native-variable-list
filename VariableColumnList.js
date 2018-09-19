@@ -195,10 +195,12 @@ class VariableColumnList<ItemT> extends React.PureComponent<Props<ItemT>, void> 
       !getItem && !getItemCount,
       'VariableColumnList does not support custom data formats.'
     );
+    /*
     invariant(
       !Array.isArray(columnLayout),
       'columnLayout should be an Array'
     );
+    */
     invariant(
       !legacyImplementation,
       'VariableColumnList does not support legacy list'
